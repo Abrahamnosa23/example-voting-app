@@ -2,8 +2,8 @@ data "aws_caller_identity" "current" {}
 
 locals {
   account_id  = data.aws_caller_identity.current.account_id
-  sub_main    = "repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/main"
-  sub_pr      = "repo:${var.github_owner}/${var.github_repo}:pull_request"
+  sub_main    = "${var.github_sub_prefix}:ref:refs/heads/main"
+  sub_pr      = "${var.github_sub_prefix}:pull_request"
   cluster_arn = "arn:aws:eks:${var.aws_region}:${local.account_id}:cluster/${var.eks_cluster_name}"
 }
 

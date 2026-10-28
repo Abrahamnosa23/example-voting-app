@@ -39,3 +39,9 @@ variable "ecr_repositories" {
   type        = list(string)
   default     = ["voting-app/vote", "voting-app/result", "voting-app/worker"]
 }
+
+variable "github_sub_prefix" {
+  description = "OIDC subject prefix. This repo uses GitHub's immutable format (owner and repo IDs)."
+  type        = string
+  default     = "repo:Abrahamnosa23@177690640/example-voting-app@1434175792"
+}
