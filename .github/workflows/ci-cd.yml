@@ -76,7 +76,7 @@ jobs:
 
       # Dependencies + hard-coded secrets. Fails on fixable HIGH/CRITICAL.
       - name: Trivy filesystem scan (vulnerabilities and secrets)
-        uses: aquasecurity/trivy-action@0.33.1 # verify the latest tag and pin to a SHA
+        uses: aquasecurity/trivy-action@v0.36.0 # verify the latest tag and pin to a SHA
         with:
           scan-type: fs
           scan-ref: .
@@ -88,7 +88,7 @@ jobs:
 
       # IaC and Helm misconfigurations. Report-only until findings are triaged.
       - name: Trivy IaC and Helm scan (report only)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
           scan-ref: .
@@ -124,7 +124,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
       - name: Trivy image scan
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.IMAGE }}:${{ github.sha }}
           severity: HIGH,CRITICAL
