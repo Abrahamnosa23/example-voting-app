@@ -1,25 +1,4 @@
-# ---------- Default VPC and its default subnets ----------
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-
-  filter {
-    name   = "default-for-az"
-    values = ["true"]
-  }
-
-  filter {
-    name   = "availability-zone"
-    values = var.azs
-  }
-}
-
+# ---------- Deploy role created by the bootstrap stack ----------
 data "aws_iam_role" "deploy" {
   name = var.deploy_role_name
 }
@@ -81,7 +60,7 @@ resource "aws_eks_cluster" "this" {
   version  = var.kubernetes_version
 
   vpc_config {
-    subnet_ids              = data.aws_subnets.default.ids
+    subnet_ids              = aws_subnet.public[*].id
     endpoint_public_access  = true
     endpoint_private_access = false
     public_access_cidrs     = var.api_public_cidrs
@@ -108,7 +87,7 @@ resource "aws_eks_node_group" "default" {
   cluster_name    = aws_eks_cluster.this.name
   node_group_name = "${var.cluster_name}-ng"
   node_role_arn   = aws_iam_role.node.arn
-  subnet_ids      = data.aws_subnets.default.ids
+  subnet_ids      = aws_subnet.public[*].id
 
   instance_types = var.node_instance_types
   capacity_type  = var.node_capacity_type
@@ -125,7 +104,10 @@ resource "aws_eks_node_group" "default" {
     max_unavailable = 1
   }
 
-  depends_on = [aws_iam_role_policy_attachment.node]
+  depends_on = [
+    aws_iam_role_policy_attachment.node,
+    aws_route_table_association.public,
+  ]
 }
 
 # ---------- Let the GitHub Actions deploy role use the cluster ----------
