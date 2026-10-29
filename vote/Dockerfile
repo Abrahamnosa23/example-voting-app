@@ -13,6 +13,9 @@ WORKDIR /usr/local/app
 COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# setuptools/wheel are build-time tools; removing them drops vendored copies flagged by Trivy
+RUN pip uninstall -y setuptools wheel
+
 # dev defines a stage for development, where it'll watch for filesystem changes
 FROM base AS dev
 RUN pip install watchdog
@@ -25,11 +28,12 @@ FROM base AS final
 # Copy our code from the current folder to the working directory inside the container
 COPY . .
 
+# run as non-root (numeric UID so Kubernetes can verify it)
 RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin appuser \
  && chown -R 10001:10001 /usr/local/app
 USER 10001
 
-# Make port 8080 available for links and/or publish
+# Non-root cannot bind port 80
 EXPOSE 8080
 
 # Define our command to be run when launching the container
